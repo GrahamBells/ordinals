@@ -3,11 +3,25 @@ import httpx
 from src.ord import models
 
 
+def is_node_healthy() -> bool:
+    with httpx.Client() as client:
+        url = "https://ordinals.com/status"
+        response = client.get(url)
+    return response.status_code == 200
+
+
+def get_block_count() -> int:
+    with httpx.Client() as client:
+        url = "https://ordinals.com/block-count"
+        response = client.get(url)
+    return int(response.content.decode("utf-8"))
+
+
 def get_block(height: int) -> models.Block:
     with httpx.Client() as client:
         url = f"https://ordapi.xyz/block/{height}"
         response = client.get(url)
-        return models.Block(**response.json())
+    return models.Block(**response.json())
 
 
 def get_content(inscription_id: str) -> str:

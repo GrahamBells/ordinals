@@ -3,6 +3,16 @@ import pytest
 from src.ord import client, models
 
 
+def test_is_node_healthy():
+    got_health = client.is_node_healthy()
+    assert got_health is True
+
+
+def test_get_block_count():
+    got_block_count = client.get_block_count()
+    assert got_block_count >= 776261
+
+
 @pytest.mark.parametrize(
     argnames=["height", "want_hash", "want_size"],
     argvalues=[
