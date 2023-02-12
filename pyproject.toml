@@ -4,6 +4,9 @@ version = "0.0.1"
 description = "bitcoin jpegs"
 authors = ["Sam Barnes <sam.barnes@opensea.io>"]
 readme = "README.md"
+packages = [
+    { include = "src" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
