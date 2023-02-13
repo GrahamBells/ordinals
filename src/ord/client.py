@@ -27,11 +27,11 @@ def get_block(height: int) -> models.Block:
     return models.Block(**response.json())
 
 
-def get_content(inscription_id: str) -> str:
+def get_content(inscription_id: str) -> bytes:
     url = "https://ordinals.com/content/" + inscription_id
     with httpx.Client() as client:
         response = client.get(url)
-    return response.content.decode("utf-8")
+    return response.content
 
 
 def get_preview(inscription_id: str) -> str:

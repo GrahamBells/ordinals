@@ -54,7 +54,7 @@ i was born may 31st, 2014
 )
 def test_get_content(inscription: str, want_content: str):
     got_content = client.get_content(inscription)
-    assert got_content == want_content
+    assert got_content.decode("utf-8") == want_content
 
 
 @pytest.mark.parametrize(

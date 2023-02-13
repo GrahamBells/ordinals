@@ -9,3 +9,23 @@ For now, api calls go through https://ordapi.xyz/ but an [official api is in the
 Clone, `poetry install` then `pre-commit install`.
 
 `poetry run pytest`
+
+
+## Usage
+
+All subject to change. Just exploring the api for now.
+
+A simple example of iterating through inscriptions and printing any with plaintext content:
+
+```python
+from src.ord import client
+
+for i, inscription_id in enumerate(client.inscription_ids(start=0, stop=100)):
+    inscription = client.get_content(inscription_id)
+    try:
+        plaintext = inscription.decode("utf-8")
+        print(i, inscription_id, "plaintext content")
+        print(plaintext, "\n\n")
+    except UnicodeDecodeError:
+        pass
+```
