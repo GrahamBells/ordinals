@@ -1,4 +1,7 @@
+from typing import Generator
+
 import httpx
+from bs4 import BeautifulSoup
 
 from src.ord import models
 
@@ -50,6 +53,34 @@ def get_inscription(inscription_id: str) -> models.Inscription:
     with httpx.Client() as client:
         response = client.get(url)
     return models.Inscription(**response.json())
+
+
+def inscription_ids(start: int = 0, stop: int | None = None) -> Generator[str, None, None]:
+    """
+    Iterate over all inscription ids starting from 0. Making 1 http request per 100 inscriptions.
+
+    Args:
+        start: inscription index to start at (inclusive)
+        stop: inscription index to stop at (exclusive), or None to iterate over all inscriptions
+
+    Returns:
+        Generator yielding one inscription id at a time
+    """
+    i = start
+    while True:
+        url = f"https://ordinals.com/inscriptions/{start + 99}"
+        with httpx.Client() as client:
+            response = client.get(url)
+
+        soup = BeautifulSoup(response.content, "html.parser")
+        thumbnails = soup.find("div", class_="thumbnails")
+        inscription_links = thumbnails.find_all("a")
+        ids = [link["href"].split("/")[-1] for link in inscription_links]
+        for one_id in reversed(ids):
+            yield one_id
+            i += 1
+            if stop and i >= stop:
+                return
 
 
 def get_tx(tx_id: str) -> models.Tx:
