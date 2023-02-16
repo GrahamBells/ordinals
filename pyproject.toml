@@ -5,7 +5,7 @@ description = "bitcoin jpegs"
 authors = ["Sam Barnes <sam.barnes@opensea.io>"]
 readme = "README.md"
 packages = [
-    { include = "src", from = "src" },
+    { include = "ord", from = "src" },
 ]
 
 [tool.poetry.dependencies]
