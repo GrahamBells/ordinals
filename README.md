@@ -18,7 +18,7 @@ All subject to change. Just exploring the api for now.
 A simple example of iterating through inscriptions and printing any with plaintext content:
 
 ```python
-from src.ord import client
+from ord import client
 
 for i, inscription_id in enumerate(client.inscription_ids(start=0, stop=100)):
     inscription = client.get_content(inscription_id)
