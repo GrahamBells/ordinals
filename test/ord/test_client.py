@@ -5,14 +5,18 @@ import pytest
 from src.ord import client, models
 
 
-def test_is_node_healthy():
-    got_health = client.is_node_healthy()
-    assert got_health is True
+@pytest.mark.parametrize("is_testnet", [False, True])
+def test_is_node_healthy(is_testnet: bool):
+    with _mock_network(is_testnet=is_testnet):
+        got_health = client.is_node_healthy()
+        assert got_health is True
 
 
-def test_get_block_count():
-    got_block_count = client.get_block_count()
-    assert got_block_count >= 776261
+@pytest.mark.parametrize("is_testnet", [False, True])
+def test_get_block_count(is_testnet: bool):
+    with _mock_network(is_testnet=is_testnet):
+        got_block_count = client.get_block_count()
+        assert got_block_count >= 1234
 
 
 @pytest.mark.parametrize(
@@ -26,9 +30,10 @@ def test_get_block_count():
     ],
 )
 def test_get_block(height: int, is_testnet: bool, want_hash: str, want_size: int):
-    got_block = client.get_block(height)
-    assert got_block.hash == want_hash
-    assert got_block.size == want_size
+    with _mock_network(is_testnet=is_testnet):
+        got_block = client.get_block(height)
+        assert got_block.hash == want_hash
+        assert got_block.size == want_size
 
 
 @pytest.mark.parametrize(
