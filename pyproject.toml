@@ -3,8 +3,8 @@ branch = "main"
 version_variable = "src/ord/__init__.py:__version__"
 
 [tool.poetry]
-name = "pyord"
-version = "0.0.9"
+name = "ordeal"
+version = "0.0.10"
 description = "bitcoin jpegs"
 authors = ["Sam Barnes <sam.barnes@opensea.io>"]
 readme = "README.md"

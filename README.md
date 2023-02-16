@@ -1,6 +1,6 @@
-[![pypi](https://img.shields.io/pypi/v/pyord.svg)](https://pypi.python.org/pypi/pyord)
+[![pypi](https://img.shields.io/pypi/v/ordeal.svg)](https://pypi.python.org/pypi/ordeal)
 
-A sandbox for working with [ord](https://github.com/casey/ord).
+A sandbox for working with [ord](https://github.com/casey/ord): `pip install ordeal`
 
 For now, api calls go through https://ordapi.xyz/ but an [official api is in the works](https://github.com/casey/ord/pull/1662). Will switch to that once available, or start wrapping the ord crate from python.
 
