@@ -1,84 +1,50 @@
-import functools
-import os
 from typing import Generator
 
 import httpx
-import pydantic
 from bs4 import BeautifulSoup
 
-from . import models
-
-
-class UrlConfig(pydantic.BaseModel):
-    is_testnet = os.getenv("USE_TEST_NETWORK", "false") in {"true", "1"}
-
-    @property
-    def is_mainnet(self) -> bool:
-        return not self.is_testnet
-
-
-@functools.lru_cache()
-def get_url_config() -> UrlConfig:
-    return UrlConfig()
-
-
-def url() -> str:
-    return "https://ordinals.com" if get_url_config().is_mainnet else "https://testnet.ordinals.com"
+from . import models, urls
 
 
 def is_node_healthy() -> bool:
     with httpx.Client() as client:
-        response = client.get(
-            f"{url()}/status",
-        )
+        response = client.get(urls.is_node_healthy())
     return response.status_code == 200
 
 
 def get_block_count() -> int:
     with httpx.Client() as client:
-        response = client.get(
-            f"{url()}/block-count",
-        )
+        response = client.get(urls.get_block_count())
     return int(response.content.decode("utf-8"))
 
 
 def get_block(height: int) -> models.Block:
     with httpx.Client() as client:
-        response = client.get(
-            f"https://ordapi.xyz/block/{height}",
-        )
+        response = client.get(urls.get_block(height))
     return models.Block(**response.json())
 
 
 def get_content(inscription_id: str) -> bytes:
     with httpx.Client() as client:
-        response = client.get(
-            f"{url()}/content/{inscription_id}",
-        )
+        response = client.get(urls.get_content(inscription_id))
     return response.content
 
 
 def get_preview(inscription_id: str) -> str:
     with httpx.Client() as client:
-        response = client.get(
-            f"{url()}/preview/{inscription_id}",
-        )
+        response = client.get(urls.get_preview(inscription_id))
     return response.content.decode("utf-8")
 
 
 def get_sat(sat: str) -> models.Sat:
     with httpx.Client() as client:
-        response = client.get(
-            f"https://ordapi.xyz/sat/{sat}",
-        )
+        response = client.get(urls.get_sat(sat))
     return models.Sat(**response.json())
 
 
 def get_inscription(inscription_id: str) -> models.Inscription:
     with httpx.Client() as client:
-        response = client.get(
-            f"https://ordapi.xyz/inscription/{inscription_id}",
-        )
+        response = client.get(urls.get_inscription(inscription_id))
     return models.Inscription(**response.json())
 
 
@@ -96,7 +62,7 @@ def inscriptions(start: int = 0, stop: int | None = None) -> Generator[tuple[int
     while True:
         with httpx.Client() as client:
             response = client.get(
-                f"{url()}/inscriptions/{start + 99}",
+                f"{urls.base()}/inscriptions/{start + 99}",
             )
 
         soup = BeautifulSoup(response.content, "html.parser")
@@ -112,7 +78,5 @@ def inscriptions(start: int = 0, stop: int | None = None) -> Generator[tuple[int
 
 def get_tx(tx_id: str) -> models.Tx:
     with httpx.Client() as client:
-        response = client.get(
-            f"https://ordapi.xyz/tx/{tx_id}",
-        )
+        response = client.get(urls.get_tx(tx_id))
     return models.Tx(**response.json())
