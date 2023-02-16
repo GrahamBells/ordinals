@@ -27,6 +27,7 @@ def test_get_block_count(is_testnet: bool):
         (3, False, "0000000082b5015589a3fdf2d4baff403e6f0be035a5d9742c1cae6295464449", 215),
         (4, False, "000000004ebadb55ee9096c9a2f8880e09da59c0d68b1c228da88e48844a1485", 215),
         (5, False, "000000009b7262315dbf071787ad3656097b892abffd1f95a1a022f896f533fc", 215),
+        (400838, True, "000000000000000002c15f191f283b588e1a0a928ef9c806b05c67e05247c9b3", 934098),
     ],
 )
 def test_get_block(height: int, is_testnet: bool, want_hash: str, want_size: int):
@@ -231,6 +232,7 @@ def test_get_inscription(inscription_id: str, is_testnet: bool, want_inscription
                 "8a3e28442dec1e4c56133f75000778121bfe46ecd9fc1c447f8a8315d01017c9i0",
             ],
         ),
+        (0, 1, True, ["0a1b4e4acf89686e4d012561014041bffd57a62254486f24cb5b0a216c04f102i0"]),
     ],
 )
 def test_inscription_ids(start: int, stop: int, is_testnet: bool, want_ids: list[str]):
