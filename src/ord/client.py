@@ -6,7 +6,7 @@ import httpx
 import pydantic
 from bs4 import BeautifulSoup
 
-from src.ord import models
+from . import models
 
 
 class UrlConfig(pydantic.BaseModel):
