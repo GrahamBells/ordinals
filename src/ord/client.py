@@ -1,76 +1,103 @@
+import functools
+import os
 from typing import Generator
 
 import httpx
+import pydantic
 from bs4 import BeautifulSoup
 
 from src.ord import models
 
 
+class UrlConfig(pydantic.BaseModel):
+    is_testnet = os.getenv("USE_TEST_NETWORK", "false") not in {"true", "1"}
+
+    @property
+    def is_mainnet(self) -> bool:
+        return not self.is_testnet
+
+
+@functools.lru_cache()
+def get_url_config() -> UrlConfig:
+    return UrlConfig()
+
+
+def url() -> str:
+    return "https://ordinals.com" if get_url_config().is_mainnet else "https://testnet.ordinals.com"
+
+
 def is_node_healthy() -> bool:
     with httpx.Client() as client:
-        url = "https://ordinals.com/status"
-        response = client.get(url)
+        response = client.get(
+            f"{url()}/status",
+        )
     return response.status_code == 200
 
 
 def get_block_count() -> int:
     with httpx.Client() as client:
-        url = "https://ordinals.com/block-count"
-        response = client.get(url)
+        response = client.get(
+            f"{url()}/block-count",
+        )
     return int(response.content.decode("utf-8"))
 
 
 def get_block(height: int) -> models.Block:
     with httpx.Client() as client:
-        url = f"https://ordapi.xyz/block/{height}"
-        response = client.get(url)
+        response = client.get(
+            f"https://ordapi.xyz/block/{height}",
+        )
     return models.Block(**response.json())
 
 
 def get_content(inscription_id: str) -> bytes:
-    url = "https://ordinals.com/content/" + inscription_id
     with httpx.Client() as client:
-        response = client.get(url)
+        response = client.get(
+            f"{url()}/content/{inscription_id}",
+        )
     return response.content
 
 
 def get_preview(inscription_id: str) -> str:
-    url = "https://ordinals.com/preview/" + inscription_id
     with httpx.Client() as client:
-        response = client.get(url)
+        response = client.get(
+            f"{url()}/preview/{inscription_id}",
+        )
     return response.content.decode("utf-8")
 
 
 def get_sat(sat: str) -> models.Sat:
-    url = "https://ordapi.xyz/sat/" + sat
     with httpx.Client() as client:
-        response = client.get(url)
+        response = client.get(
+            f"https://ordapi.xyz/sat/{sat}",
+        )
     return models.Sat(**response.json())
 
 
 def get_inscription(inscription_id: str) -> models.Inscription:
-    url = "https://ordapi.xyz/inscription/" + inscription_id
     with httpx.Client() as client:
-        response = client.get(url)
+        response = client.get(
+            f"https://ordapi.xyz/inscription/{inscription_id}",
+        )
     return models.Inscription(**response.json())
 
 
 def inscription_ids(start: int = 0, stop: int | None = None) -> Generator[str, None, None]:
     """
-    Iterate over all inscription ids starting from 0. Making 1 http request per 100 inscriptions.
-
     Args:
         start: inscription index to start at (inclusive)
         stop: inscription index to stop at (exclusive), or None to iterate over all inscriptions
 
     Returns:
-        Generator yielding one inscription id at a time
+        Generator yielding one inscription id at a time, starting from the
+        0th inscription. Making 1 http request per 100 inscriptions.
     """
     i = start
     while True:
-        url = f"https://ordinals.com/inscriptions/{start + 99}"
         with httpx.Client() as client:
-            response = client.get(url)
+            response = client.get(
+                f"{url()}/inscriptions/{start + 99}",
+            )
 
         soup = BeautifulSoup(response.content, "html.parser")
         thumbnails = soup.find("div", class_="thumbnails")
@@ -84,7 +111,8 @@ def inscription_ids(start: int = 0, stop: int | None = None) -> Generator[str, N
 
 
 def get_tx(tx_id: str) -> models.Tx:
-    url = "https://ordapi.xyz/tx/" + tx_id
     with httpx.Client() as client:
-        response = client.get(url)
+        response = client.get(
+            f"https://ordapi.xyz/tx/{tx_id}",
+        )
     return models.Tx(**response.json())

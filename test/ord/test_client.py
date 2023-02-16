@@ -1,3 +1,5 @@
+from unittest import mock
+
 import pytest
 
 from src.ord import client, models
@@ -14,30 +16,32 @@ def test_get_block_count():
 
 
 @pytest.mark.parametrize(
-    argnames=["height", "want_hash", "want_size"],
+    argnames=["height", "is_testnet", "want_hash", "want_size"],
     argvalues=[
-        (1, "00000000839a8e6886ab5951d76f411475428afc90947ee320161bbf18eb6048", 215),
-        (2, "000000006a625f06636b8bb6ac7b960a8d03705d1ace08b1a19da3fdcc99ddbd", 215),
-        (3, "0000000082b5015589a3fdf2d4baff403e6f0be035a5d9742c1cae6295464449", 215),
-        (4, "000000004ebadb55ee9096c9a2f8880e09da59c0d68b1c228da88e48844a1485", 215),
-        (5, "000000009b7262315dbf071787ad3656097b892abffd1f95a1a022f896f533fc", 215),
+        (1, False, "00000000839a8e6886ab5951d76f411475428afc90947ee320161bbf18eb6048", 215),
+        (2, False, "000000006a625f06636b8bb6ac7b960a8d03705d1ace08b1a19da3fdcc99ddbd", 215),
+        (3, False, "0000000082b5015589a3fdf2d4baff403e6f0be035a5d9742c1cae6295464449", 215),
+        (4, False, "000000004ebadb55ee9096c9a2f8880e09da59c0d68b1c228da88e48844a1485", 215),
+        (5, False, "000000009b7262315dbf071787ad3656097b892abffd1f95a1a022f896f533fc", 215),
     ],
 )
-def test_get_block(height: int, want_hash: str, want_size: int):
+def test_get_block(height: int, is_testnet: bool, want_hash: str, want_size: int):
     got_block = client.get_block(height)
     assert got_block.hash == want_hash
     assert got_block.size == want_size
 
 
 @pytest.mark.parametrize(
-    argnames=["inscription", "want_content"],
+    argnames=["inscription", "is_testnet", "want_content"],
     argvalues=[
         (
             "3d91f7983bbb9ef05f05a874bb78d79fa15d2e38fddb9f2f866bcbb853b9460di0",
+            False,
             """emo.eth wuz here xoxo\n0x22eed066b155cacff80c4ae52c723c000999786c5b2b99d616dd99c21ca45a006d961f2053a70adcfebfd8ec3cf83b3e3759c65efde03ac94802799a8d12c1ec01""",
         ),
         (
             "0e75686a1a78f79de4263b2d6344a2884630696c64f9202776b6f2e9db5b5ceei0",
+            False,
             """i am sat 1283640386681191
 of degree 0°93456′1056″386681191‴
 and percentile 61.125732766342665%
@@ -50,18 +54,21 @@ i was born may 31st, 2014
 ~
 """,
         ),
+        ("0a1b4e4acf89686e4d012561014041bffd57a62254486f24cb5b0a216c04f102i0", True, "୧༼❁ิ_ऀ༽୨"),
     ],
 )
-def test_get_content(inscription: str, want_content: str):
-    got_content = client.get_content(inscription)
-    assert got_content.decode("utf-8") == want_content
+def test_get_content(inscription: str, is_testnet: bool, want_content: str):
+    with _mock_network(is_testnet=is_testnet):
+        got_content = client.get_content(inscription)
+        assert got_content.decode("utf-8") == want_content
 
 
 @pytest.mark.parametrize(
-    argnames=["inscription", "want_preview"],
+    argnames=["inscription", "is_testnet", "want_preview"],
     argvalues=[
         (
             "f255329ff815546c99edd672ab545afa96e3b3a570b0d202f60ff6b7c7e71ba7i0",
+            False,
             """<!doctype html>
 <html lang=en>
   <head>
@@ -83,16 +90,18 @@ def test_get_content(inscription: str, want_content: str):
         ),
     ],
 )
-def test_get_preview(inscription: str, want_preview):
-    got_preview = client.get_preview(inscription)
-    assert got_preview == want_preview
+def test_get_preview(inscription: str, is_testnet: bool, want_preview):
+    with _mock_network(is_testnet=is_testnet):
+        got_preview = client.get_preview(inscription)
+        assert got_preview == want_preview
 
 
 @pytest.mark.parametrize(
-    argnames=["sat_id", "want_sat"],
+    argnames=["sat_id", "is_testnet", "want_sat"],
     argvalues=[
         (
             "1283640386667641",
+            False,
             models.Sat(
                 block="/block/303456",
                 cycle=0,
@@ -110,16 +119,18 @@ def test_get_preview(inscription: str, want_preview):
         )
     ],
 )
-def test_get_sat(sat_id: str, want_sat: models.Sat):
-    got_sat = client.get_sat(sat_id)
-    assert got_sat == want_sat
+def test_get_sat(sat_id: str, is_testnet: bool, want_sat: models.Sat):
+    with _mock_network(is_testnet=is_testnet):
+        got_sat = client.get_sat(sat_id)
+        assert got_sat == want_sat
 
 
 @pytest.mark.parametrize(
-    argnames=["inscription_id", "want_inscription"],
+    argnames=["inscription_id", "is_testnet", "want_inscription"],
     argvalues=[
         (
             "ff4503ab9048d6d0ff4e23def81b614d5270d341ce993992e93902ceb0d4ed79i0",
+            False,
             models.Inscription(
                 id="ff4503ab9048d6d0ff4e23def81b614d5270d341ce993992e93902ceb0d4ed79i0",
                 title="Inscription 42149",
@@ -142,17 +153,19 @@ def test_get_sat(sat_id: str, want_sat: models.Sat):
         )
     ],
 )
-def test_get_inscription(inscription_id: str, want_inscription: models.Inscription):
-    got_inscription = client.get_inscription(inscription_id)
-    assert got_inscription == want_inscription
+def test_get_inscription(inscription_id: str, is_testnet: bool, want_inscription: models.Inscription):
+    with _mock_network(is_testnet=is_testnet):
+        got_inscription = client.get_inscription(inscription_id)
+        assert got_inscription == want_inscription
 
 
 @pytest.mark.parametrize(
-    argnames=["start", "stop", "want_ids"],
+    argnames=["start", "stop", "is_testnet", "want_ids"],
     argvalues=[
         (
             0,
             10,
+            False,
             [
                 "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0",
                 "26482871f33f1051f450f2da9af275794c0b5f1c61ebf35e4467fb42c2813403i0",
@@ -169,6 +182,7 @@ def test_get_inscription(inscription_id: str, want_inscription: models.Inscripti
         (
             10,
             50,
+            False,
             [
                 "7641ef7165bc59c40b269d4b2f6741ca3f34334b8c758fbba155bd0e29b4011bi0",
                 "7460a1068f98e1fac798304addca4b5eed1cc9968cd5526e07c2ceb3ec7cf7b3i0",
@@ -214,17 +228,19 @@ def test_get_inscription(inscription_id: str, want_inscription: models.Inscripti
         ),
     ],
 )
-def test_inscription_ids(start: int, stop: int, want_ids: list[str]):
-    generator = client.inscription_ids(start=start, stop=stop)
-    got_inscriptions = list(generator)
-    assert got_inscriptions == want_ids
+def test_inscription_ids(start: int, stop: int, is_testnet: bool, want_ids: list[str]):
+    with _mock_network(is_testnet=is_testnet):
+        generator = client.inscription_ids(start=start, stop=stop)
+        got_inscriptions = list(generator)
+        assert got_inscriptions == want_ids
 
 
 @pytest.mark.parametrize(
-    argnames=["tx_id", "want_tx"],
+    argnames=["tx_id", "is_testnet", "want_tx"],
     argvalues=[
         (
             "ff4503ab9048d6d0ff4e23def81b614d5270d341ce993992e93902ceb0d4ed79",
+            False,
             models.Tx(
                 address="bc1p3rfd76c37af87e23g4z6tts0zu52u6frjh92m9uq5evxy0sr7hvslly59y",
                 script_pubkey="OP_PUSHNUM_1 OP_PUSHBYTES_32 88d2df6b11f7527f65514545a5ae0f1728ae692395caad9780a658623e03f5d9",
@@ -233,6 +249,11 @@ def test_inscription_ids(start: int, stop: int, want_ids: list[str]):
         )
     ],
 )
-def test_get_tx(tx_id: str, want_tx: models.Tx):
-    got_tx = client.get_tx(tx_id)
-    assert got_tx == want_tx
+def test_get_tx(tx_id: str, is_testnet: bool, want_tx: models.Tx):
+    with _mock_network(is_testnet=is_testnet):
+        got_tx = client.get_tx(tx_id)
+        assert got_tx == want_tx
+
+
+def _mock_network(is_testnet: bool):
+    return mock.patch("src.ord.client.get_url_config", return_value=client.UrlConfig(is_testnet=is_testnet))
