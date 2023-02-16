@@ -10,7 +10,7 @@ from . import models
 
 
 class UrlConfig(pydantic.BaseModel):
-    is_testnet = os.getenv("USE_TEST_NETWORK", "false") not in {"true", "1"}
+    is_testnet = os.getenv("USE_TEST_NETWORK", "false") in {"true", "1"}
 
     @property
     def is_mainnet(self) -> bool:
