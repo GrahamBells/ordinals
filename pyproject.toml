@@ -4,7 +4,7 @@ version_variable = "src/ord/__init__.py:__version__"
 
 [tool.poetry]
 name = "pyord"
-version = "0.0.8"
+version = "0.0.9"
 description = "bitcoin jpegs"
 authors = ["Sam Barnes <sam.barnes@opensea.io>"]
 readme = "README.md"

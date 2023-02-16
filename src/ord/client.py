@@ -82,7 +82,7 @@ def get_inscription(inscription_id: str) -> models.Inscription:
     return models.Inscription(**response.json())
 
 
-def inscription_ids(start: int = 0, stop: int | None = None) -> Generator[str, None, None]:
+def inscriptions(start: int = 0, stop: int | None = None) -> Generator[tuple[int, str], None, None]:
     """
     Args:
         start: inscription index to start at (inclusive)
@@ -104,7 +104,7 @@ def inscription_ids(start: int = 0, stop: int | None = None) -> Generator[str, N
         inscription_links = thumbnails.find_all("a")
         ids = [link["href"].split("/")[-1] for link in inscription_links]
         for one_id in reversed(ids):
-            yield one_id
+            yield i, one_id
             i += 1
             if stop and i >= stop:
                 return
