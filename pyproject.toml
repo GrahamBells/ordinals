@@ -3,7 +3,7 @@ branch = "main"
 version_variable = "src/ord/__init__.py:__version__"
 
 [tool.poetry]
-name = "ordeal"
+name = "ordinals"
 version = "0.0.11"
 description = "bitcoin jpegs"
 authors = ["Sam Barnes <sam.barnes@opensea.io>"]
