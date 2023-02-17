@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 
-from src.ord import client, models
+from src.ord import client, models, urls
 
 
 @pytest.mark.parametrize("is_testnet", [False, True])
@@ -263,4 +263,4 @@ def test_get_tx(tx_id: str, is_testnet: bool, want_tx: models.Tx):
 
 
 def _mock_network(is_testnet: bool):
-    return mock.patch("src.ord.client.get_url_config", return_value=client.UrlConfig(is_testnet=is_testnet))
+    return mock.patch("src.ord.urls.get_url_config", return_value=urls.UrlConfig(is_testnet=is_testnet))
