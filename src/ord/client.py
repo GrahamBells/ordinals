@@ -21,7 +21,7 @@ def get_block_count() -> int:
 def get_block(height: int) -> models.Block:
     with httpx.Client() as client:
         response = client.get(urls.get_block(height))
-    return models.Block(**response.json())
+    return models.Block.parse_raw(b=response.content)
 
 
 def get_content(inscription_id: str) -> bytes:
@@ -39,13 +39,13 @@ def get_preview(inscription_id: str) -> str:
 def get_sat(sat: str) -> models.Sat:
     with httpx.Client() as client:
         response = client.get(urls.get_sat(sat))
-    return models.Sat(**response.json())
+    return models.Sat.parse_raw(b=response.content)
 
 
 def get_inscription(inscription_id: str) -> models.Inscription:
     with httpx.Client() as client:
         response = client.get(urls.get_inscription(inscription_id))
-    return models.Inscription(**response.json())
+    return models.Inscription.parse_raw(b=response.content)
 
 
 def inscriptions(start: int = 0, stop: int | None = None) -> Generator[tuple[int, str], None, None]:
@@ -79,4 +79,4 @@ def inscriptions(start: int = 0, stop: int | None = None) -> Generator[tuple[int
 def get_tx(tx_id: str) -> models.Tx:
     with httpx.Client() as client:
         response = client.get(urls.get_tx(tx_id))
-    return models.Tx(**response.json())
+    return models.Tx.parse_raw(b=response.content)

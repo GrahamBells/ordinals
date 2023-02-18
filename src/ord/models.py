@@ -38,7 +38,7 @@ class Inscription(BaseModel):
     content_length: str = pydantic.Field(..., alias="content length")
     content_type: str = pydantic.Field(..., alias="content type")
     genesis_fee: int = pydantic.Field(..., alias="genesis fee")
-    genesis_height: str = pydantic.Field(..., alias="genesis height")
+    genesis_height: int = pydantic.Field(..., alias="genesis height")
     genesis_transaction: str = pydantic.Field(..., alias="genesis transaction")
     inscription_number: int  # = pydantic.Field(..., alias="inscription_number")
     location: str
@@ -49,6 +49,20 @@ class Inscription(BaseModel):
     sat: str
     timestamp: str
     title: str
+
+    @pydantic.validator("genesis_height", pre=True)
+    def sanitize_genesis_height(cls, v) -> int:
+        match v:
+            case int():
+                return v
+            case str():
+                return int(v.split("/")[-1])
+            case _:
+                raise ValueError("Must be either a string or int")
+
+    @pydantic.validator("genesis_transaction", pre=True)
+    def sanitize_genesis_transaction(cls, v) -> str:
+        return v.split("/")[-1]
 
 
 class Tx(BaseModel):

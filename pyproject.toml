@@ -4,7 +4,7 @@ version_variable = "src/ord/__init__.py:__version__"
 
 [tool.poetry]
 name = "ordinals"
-version = "0.0.11"
+version = "0.0.12"
 description = "bitcoin jpegs"
 authors = ["Sam Barnes <sam.barnes@opensea.io>"]
 readme = "README.md"
@@ -35,6 +35,7 @@ line-length = 120
 target-version = "py310"
 select = ["B", "E", "F", "I"]
 ignore = [
+    "E999",  # pattern matching not supported yet
     "E501",  # line too long -- black handles this
 ]
 unfixable = ["B"]  # Avoid trying to fix flake8-bugbear (`B`) violations.
