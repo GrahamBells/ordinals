@@ -4,7 +4,7 @@ version_variable = "src/ord/__init__.py:__version__"
 
 [tool.poetry]
 name = "ordinals"
-version = "0.0.12"
+version = "0.0.13"
 description = "bitcoin jpegs"
 authors = ["Sam Barnes <sam.barnes@opensea.io>"]
 readme = "README.md"

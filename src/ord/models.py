@@ -1,3 +1,5 @@
+import datetime
+
 import pydantic
 
 
@@ -12,8 +14,18 @@ class Block(BaseModel):
     previous_block_hash: str = pydantic.Field(..., alias="previous blockhash")
     size: int
     target: str
-    timestamp: str
+    timestamp: datetime.datetime
     weight: int
+
+    @pydantic.validator("timestamp", pre=True)
+    def sanitize_timestamp(cls, v) -> datetime.datetime:
+        match v:
+            case datetime.datetime():
+                return v
+            case str():
+                return datetime.datetime.strptime(v, "%Y-%m-%d %H:%M:%S UTC").astimezone(tz=datetime.timezone.utc)
+            case _:
+                raise ValueError("Must be either a datetime or string")
 
 
 class Sat(BaseModel):
@@ -28,7 +40,17 @@ class Sat(BaseModel):
     percentile: str
     period: int
     rarity: str
-    timestamp: str
+    timestamp: datetime.datetime
+
+    @pydantic.validator("timestamp", pre=True)
+    def sanitize_timestamp(cls, v) -> datetime.datetime:
+        match v:
+            case datetime.datetime():
+                return v
+            case str():
+                return datetime.datetime.strptime(v, "%Y-%m-%d %H:%M:%S UTC").astimezone(tz=datetime.timezone.utc)
+            case _:
+                raise ValueError("Must be either a datetime or string")
 
 
 class Inscription(BaseModel):
@@ -47,7 +69,7 @@ class Inscription(BaseModel):
     output_value: int = pydantic.Field(..., alias="output value")
     preview: str
     sat: str
-    timestamp: str
+    timestamp: datetime.datetime
     title: str
 
     @pydantic.validator("genesis_height", pre=True)
@@ -63,6 +85,16 @@ class Inscription(BaseModel):
     @pydantic.validator("genesis_transaction", pre=True)
     def sanitize_genesis_transaction(cls, v) -> str:
         return v.split("/")[-1]
+
+    @pydantic.validator("timestamp", pre=True)
+    def sanitize_timestamp(cls, v) -> datetime.datetime:
+        match v:
+            case datetime.datetime():
+                return v
+            case str():
+                return datetime.datetime.strptime(v, "%Y-%m-%d %H:%M:%S UTC").astimezone(tz=datetime.timezone.utc)
+            case _:
+                raise ValueError("Must be either a datetime or string")
 
 
 class Tx(BaseModel):
